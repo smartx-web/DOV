@@ -41,7 +41,7 @@ func run(dir string,dry bool)error{
  fields:=[]string{"state_code","lga_code","ward_code","pu_code","pu_name","full_code"}
  for _,k:=range fields{if _,ok:=idx[k];!ok{return fmt.Errorf("missing CSV column %s",k)}}
  var tx pgx.Tx;var db *pgxpool.Pool;ctx,cancel:=context.WithTimeout(context.Background(),3*time.Minute);defer cancel()
- if !dry{url:=os.Getenv("DATABASE_URL");if url==""{return fmt.Errorf("DATABASE_URL required")};db,e=pgxpool.New(ctx,url);if e!=nil{return e};defer db.Close();tx,e=db.Begin(ctx);if e!=nil{return e};defer tx.Rollback(ctx)}
+ if !dry{url:=os.Getenv("DATABASE_URL");if url==""{return fmt.Errorf("DATABASE_URL required")};db,e=pgxpool.New(ctx,url);if e!=nil{return e};defer db.Close();tx,e=db.Begin(ctx);if e!=nil{return e};defer tx.Rollback(ctx);for _,ddl:=range []string{"CREATE TABLE IF NOT EXISTS lgas(id BIGSERIAL PRIMARY KEY,name TEXT UNIQUE NOT NULL)","CREATE TABLE IF NOT EXISTS wards(id BIGSERIAL PRIMARY KEY,lga_id BIGINT NOT NULL REFERENCES lgas(id),name TEXT NOT NULL,UNIQUE(lga_id,name))","CREATE TABLE IF NOT EXISTS polling_units(id BIGSERIAL PRIMARY KEY,ward_id BIGINT NOT NULL REFERENCES wards(id),code TEXT NOT NULL,name TEXT NOT NULL,UNIQUE(ward_id,code))"}{if _,e=tx.Exec(ctx,ddl);e!=nil{return e}}}
  ids:=map[string]int64{};for code,name:=range selected{
  if !dry{var id int64;e=tx.QueryRow(ctx,"INSERT INTO lgas(name) VALUES($1) ON CONFLICT(name) DO UPDATE SET name=EXCLUDED.name RETURNING id",strings.Title(strings.ToLower(name))).Scan(&id);if e!=nil{return e};ids[code]=id}
  }
