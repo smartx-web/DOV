@@ -21,7 +21,7 @@ import (
 )
 
 const state = "07"
-var allowed = map[string]bool{"ADO":true,"AGATU":true,"APA":true,"OBI":true,"OGBADIBO":true,"OHIMINI":true,"OJU":true,"OKPOKPO":true,"OTUKPO":true}
+var allowed = map[string]bool{"ADO":true,"AGATU":true,"APA":true,"OBI":true,"OGBADIBO":true,"OHIMINI":true,"OJU":true,"OKPOKWU":true,"OTUKPO":true}
 type Area struct { Code string `json:"code"`; Name string `json:"name"`; StateCode string `json:"state_code"`; LGACode string `json:"lga_code"` }
 func readAreas(path string)([]Area,error){f,e:=os.Open(path);if e!=nil{return nil,e};defer f.Close();var a []Area;e=json.NewDecoder(f).Decode(&a);return a,e}
 func main(){
