@@ -9,7 +9,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -o /dov ./cmd/server && CGO_ENAB
 # Pin to a fixed revision for reproducibility; update only after review.
 FROM alpine:3.22 AS electoral-data
 RUN apk add --no-cache ca-certificates
-ARG SNAPSHOT_REV=main
+ARG SNAPSHOT_REV=3cf617721aea519eef960681d3d86a4fad4325da
 RUN mkdir -p /data && for file in lgas.json wards.json polling-units.csv; do wget -q -T 90 -O "/data/$file" "https://raw.githubusercontent.com/saidiadegoke/nigeria-inec-geo/$SNAPSHOT_REV/data/$file" || exit 1; done
 
 FROM alpine:3.22
